@@ -1,13 +1,14 @@
 import time
 import logging
+import asyncio
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.models import StockQueryResponse
+from app.models import StockQueryResponse, BatchQueryResponse, BatchQueryItem
 from app.data_service import fetch_stock_data
 from app.indicators import get_latest_indicators
 
@@ -84,4 +85,64 @@ async def query_stock(
         macdv_trend=indicators["macdv_trend"],
         rsi14_signal=indicators["rsi14_signal"],
         updated_at=datetime.now().isoformat()
+    )
+
+
+def _build_batch_item(data, indicators) -> BatchQueryItem:
+    return BatchQueryItem(
+        stock_name=data["stock_name"],
+        stock_code=data["stock_code"],
+        trade_date=data["trade_date"],
+        current_price=data["current_price"],
+        macdv=indicators["macdv"],
+        rsi14=indicators["rsi14"],
+        macdv_trend=indicators["macdv_trend"],
+        rsi14_signal=indicators["rsi14_signal"],
+    )
+
+
+def _query_single(query: str) -> BatchQueryItem:
+    q = query.strip()
+    if not q:
+        raise ValueError("empty query")
+    try:
+        if q.isdigit():
+            data = fetch_stock_data(stock_code=q)
+        else:
+            data = fetch_stock_data(stock_name=q)
+        indicators = get_latest_indicators(data["df"])
+        return _build_batch_item(data, indicators)
+    except Exception as e:
+        return BatchQueryItem(
+            stock_name=q,
+            stock_code="",
+            trade_date="",
+            current_price=0.0,
+            macdv=0.0,
+            rsi14=0.0,
+            macdv_trend="neutral",
+            rsi14_signal="neutral",
+            error=str(e),
+        )
+
+
+@app.post("/api/stock/batch_query", response_model=BatchQueryResponse)
+async def batch_query_stock(
+    request: Request,
+    queries: List[str],
+):
+    client_ip = request.client.host if request.client else "unknown"
+    if not _check_rate_limit(client_ip):
+        raise HTTPException(status_code=429, detail="rate limit exceeded: max 5 requests per minute")
+
+    if not queries or not any(q.strip() for q in queries):
+        raise HTTPException(status_code=422, detail="queries list is required")
+
+    batch_results: List[BatchQueryItem] = []
+    for q in queries:
+        batch_results.append(_query_single(q))
+
+    return BatchQueryResponse(
+        results=batch_results,
+        updated_at=datetime.now().isoformat(),
     )

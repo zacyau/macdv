@@ -2,7 +2,7 @@
   <div class="min-h-screen py-8">
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-800">股票数据分析平台</h1>
-      <p class="text-gray-500 mt-2">支持沪深A股及主要ETF查询</p>
+      <p class="text-gray-500 mt-2">支持沪深A股及主要ETF批量查询</p>
     </div>
 
     <SearchPanel :loading="loading" @query="onQuery" />
@@ -26,7 +26,7 @@
     </transition>
 
     <transition name="fade">
-      <div v-if="result" class="mt-4 w-full max-w-2xl mx-auto">
+      <div v-if="result" class="mt-4 w-full max-w-5xl mx-auto">
         <IndicatorCards :data="result" />
       </div>
     </transition>
@@ -40,19 +40,19 @@ import { ref } from 'vue'
 import SearchPanel from '../components/SearchPanel.vue'
 import IndicatorCards from '../components/IndicatorCards.vue'
 import HistoryList from '../components/HistoryList.vue'
-import { queryStock } from '../utils/api.js'
+import { batchQueryStock } from '../utils/api.js'
 
 const loading = ref(false)
 const error = ref('')
 const result = ref(null)
 const history = ref([])
 
-async function onQuery(params) {
+async function onQuery(queries) {
   loading.value = true
   error.value = ''
   result.value = null
   try {
-    const data = await queryStock(params)
+    const data = await batchQueryStock(queries)
     result.value = data
     addHistory(data)
   } catch (err) {
@@ -67,10 +67,25 @@ async function onQuery(params) {
 }
 
 function addHistory(item) {
-  history.value = [item, ...history.value.filter(h => h.stock_code !== item.stock_code)].slice(0, 10)
+  const codes = item.results.map(r => r.stock_code).filter(Boolean).join(',')
+  const existing = history.value.find(h => h.codes === codes)
+  if (!existing) {
+    history.value = [{ codes, ...item }, ...history.value].slice(0, 10)
+  }
 }
 
 function onHistorySelect(item) {
   result.value = item
 }
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

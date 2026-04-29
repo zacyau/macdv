@@ -34,21 +34,27 @@ def _set_cached(stock_code: str, data: Any):
 _bs_logged_in = False
 
 
+import threading
+
+_bs_lock = threading.Lock()
+
 def _ensure_login_bs():
     global _bs_logged_in
-    if not _bs_logged_in:
-        lg = bs.login()
-        if lg.error_code != "0":
-            logger.error(f"baostock login failed: {lg.error_msg}")
-            raise ConnectionError(f"baostock login failed: {lg.error_msg}")
-        _bs_logged_in = True
+    with _bs_lock:
+        if not _bs_logged_in:
+            lg = bs.login()
+            if lg.error_code != "0":
+                logger.error(f"baostock login failed: {lg.error_msg}")
+                raise ConnectionError(f"baostock login failed: {lg.error_msg}")
+            _bs_logged_in = True
 
 
 def _logout_bs():
     global _bs_logged_in
-    if _bs_logged_in:
-        bs.logout()
-        _bs_logged_in = False
+    with _bs_lock:
+        if _bs_logged_in:
+            bs.logout()
+            _bs_logged_in = False
 
 
 def _resolve_code(stock_code: Optional[str], stock_name: Optional[str]) -> str:
@@ -61,6 +67,17 @@ def _resolve_code(stock_code: Optional[str], stock_name: Optional[str]) -> str:
                 code = f"sz.{code}"
             elif code.startswith(("4", "8")):
                 code = f"bj.{code}"
+            else:
+                # try sh first, then sz
+                for prefix in ("sh.", "sz."):
+                    try:
+                        _ensure_login_bs()
+                        rs = bs.query_stock_basic(code=f"{prefix}{code}")
+                        if rs.error_code == "0" and rs.next():
+                            return f"{prefix}{code}"
+                    finally:
+                        _logout_bs()
+                raise ValueError(f"cannot resolve stock code: {stock_code}")
         return code
 
     if stock_name:
