@@ -80,8 +80,8 @@ async def query_stock(
         stock_code=data["stock_code"],
         trade_date=data["trade_date"],
         current_price=data["current_price"],
-        macdv=indicators["macdv"],
-        rsi14=indicators["rsi14"],
+        macdv=round(indicators["macdv"], 2),
+        rsi14=round(indicators["rsi14"], 2),
         macdv_trend=indicators["macdv_trend"],
         rsi14_signal=indicators["rsi14_signal"],
         updated_at=datetime.now().isoformat()
@@ -94,8 +94,8 @@ def _build_batch_item(data, indicators) -> BatchQueryItem:
         stock_code=data["stock_code"],
         trade_date=data["trade_date"],
         current_price=data["current_price"],
-        macdv=indicators["macdv"],
-        rsi14=indicators["rsi14"],
+        macdv=round(indicators["macdv"], 2),
+        rsi14=round(indicators["rsi14"], 2),
         macdv_trend=indicators["macdv_trend"],
         rsi14_signal=indicators["rsi14_signal"],
     )

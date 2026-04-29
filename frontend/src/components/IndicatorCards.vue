@@ -16,20 +16,20 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'macdv'">
-            <span :class="macdvColor(record.macdv)">{{ record.macdv }}</span>
-            <a-tag :color="macdvTagColor(record.macdv_trend)">
-              {{ macdvTrendText(record.macdv_trend) }}
-            </a-tag>
+            <div class="flex flex-col items-start gap-1">
+              <span :class="macdvColor(record.macdv)">{{ record.macdv }}</span>
+              <a-tag :color="macdvTagColor(record.macdv_trend)" class="status-tag">
+                {{ macdvTrendText(record.macdv_trend) }}
+              </a-tag>
+            </div>
           </template>
           <template v-if="column.key === 'rsi14'">
-            <span :class="rsiColor(record.rsi14)">{{ record.rsi14 }}</span>
-            <a-tag :color="rsiTagColor(record.rsi14_signal)">
-              {{ rsiSignalText(record.rsi14_signal) }}
-            </a-tag>
-          </template>
-          <template v-if="column.key === 'error'">
-            <span v-if="record.error" class="text-red-500">{{ record.error }}</span>
-            <span v-else class="text-green-500">成功</span>
+            <div class="flex flex-col items-start gap-1">
+              <span :class="rsiColor(record.rsi14)">{{ record.rsi14 }}</span>
+              <a-tag :color="rsiTagColor(record.rsi14_signal)" class="status-tag">
+                {{ rsiSignalText(record.rsi14_signal) }}
+              </a-tag>
+            </div>
           </template>
         </template>
       </a-table>
@@ -50,11 +50,10 @@ const props = defineProps({
 const columns = [
   { title: '股票名称', dataIndex: 'stock_name', key: 'stock_name' },
   { title: '股票代码', dataIndex: 'stock_code', key: 'stock_code' },
-  { title: '交易日期', dataIndex: 'trade_date', key: 'trade_date' },
+  { title: '日期', dataIndex: 'trade_date', key: 'trade_date' },
   { title: '当前股价', dataIndex: 'current_price', key: 'current_price' },
   { title: 'MACD-V', key: 'macdv' },
   { title: 'RSI 14', key: 'rsi14' },
-  { title: '状态', key: 'error' },
 ]
 
 const tableData = computed(() => {
@@ -97,3 +96,11 @@ function rsiSignalText(signal) {
   return '中性'
 }
 </script>
+
+<style scoped>
+.status-tag {
+  min-width: 48px;
+  text-align: center;
+  display: inline-block;
+}
+</style>

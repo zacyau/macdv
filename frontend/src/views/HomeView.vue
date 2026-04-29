@@ -30,8 +30,6 @@
         <IndicatorCards :data="result" />
       </div>
     </transition>
-
-    <HistoryList :history="history" @select="onHistorySelect" />
   </div>
 </template>
 
@@ -39,13 +37,11 @@
 import { ref } from 'vue'
 import SearchPanel from '../components/SearchPanel.vue'
 import IndicatorCards from '../components/IndicatorCards.vue'
-import HistoryList from '../components/HistoryList.vue'
 import { batchQueryStock } from '../utils/api.js'
 
 const loading = ref(false)
 const error = ref('')
 const result = ref(null)
-const history = ref([])
 
 async function onQuery(queries) {
   loading.value = true
@@ -54,7 +50,6 @@ async function onQuery(queries) {
   try {
     const data = await batchQueryStock(queries)
     result.value = data
-    addHistory(data)
   } catch (err) {
     if (err.response) {
       error.value = err.response.data?.detail || '查询失败'
@@ -64,18 +59,6 @@ async function onQuery(queries) {
   } finally {
     loading.value = false
   }
-}
-
-function addHistory(item) {
-  const codes = item.results.map(r => r.stock_code).filter(Boolean).join(',')
-  const existing = history.value.find(h => h.codes === codes)
-  if (!existing) {
-    history.value = [{ codes, ...item }, ...history.value].slice(0, 10)
-  }
-}
-
-function onHistorySelect(item) {
-  result.value = item
 }
 </script>
 
