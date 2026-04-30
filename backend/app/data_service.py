@@ -126,7 +126,7 @@ def fetch_stock_data(stock_code: Optional[str] = None, stock_name: Optional[str]
             start_date=start_date,
             end_date=end_date,
             frequency="d",
-            adjustflag="3"
+            adjustflag="2"
         )
 
         data_list = []

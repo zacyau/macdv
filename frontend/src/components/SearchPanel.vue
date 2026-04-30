@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full max-w-2xl mx-auto p-4">
-    <a-card title="股票批量查询" class="shadow-md">
+  <div class="w-full max-w-xl mx-auto px-4">
+    <a-card class="shadow-sm border-gray-100" :bordered="false">
       <a-form layout="vertical">
         <a-form-item label="股票列表">
           <a-textarea
             v-model:value="inputText"
-            placeholder="请输入股票名称或股票代码，支持逗号、空格或换行分隔"
-            :rows="4"
+            placeholder="股票名称或代码，逗号、空格或换行分隔"
+            :rows="3"
             allow-clear
           />
         </a-form-item>

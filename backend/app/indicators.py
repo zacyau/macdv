@@ -63,16 +63,16 @@ def get_latest_indicators(df: pd.DataFrame) -> dict:
     latest_macdv = float(macdv_series.iloc[-1])
     latest_rsi = float(rsi_series.iloc[-1])
 
-    if len(macdv_series) >= 2:
-        prev_macdv = float(macdv_series.iloc[-2])
-        if latest_macdv > prev_macdv:
-            macdv_trend = "up"
-        elif latest_macdv < prev_macdv:
-            macdv_trend = "down"
-        else:
-            macdv_trend = "neutral"
+    if latest_macdv > 150:
+        macdv_trend = "momentum_peak"
+    elif latest_macdv > 50:
+        macdv_trend = "strong_up"
+    elif latest_macdv >= -50:
+        macdv_trend = "oscillation"
+    elif latest_macdv >= -150:
+        macdv_trend = "strong_down"
     else:
-        macdv_trend = "neutral"
+        macdv_trend = "momentum_decay"
 
     if latest_rsi > 70:
         rsi_signal = "overbought"

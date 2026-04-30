@@ -89,14 +89,16 @@ async def query_stock(
 
 
 def _get_recommendation(macdv: float, rsi14: float) -> str:
-    if -50 <= macdv <= 50:
-        return "观望"
-    if macdv > 150 and rsi14 > 70:
+    if macdv < 50 and rsi14 > 70:
         return "右侧卖点"
+    if macdv > 150 and rsi14 > 70:
+        return "左侧卖点"
     if macdv < -150 and rsi14 < 30:
         return "左侧买点"
     if 50 <= macdv <= 150 and rsi14 < 30:
         return "右侧买点"
+    if -50 <= macdv <= 50:
+        return "观望"
     return "观望"
 
 

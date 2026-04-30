@@ -1,19 +1,21 @@
 <template>
-  <div class="p-4">
-    <a-card class="shadow-md">
+  <div>
+    <a-card class="shadow-sm border-gray-100" :bordered="false">
       <template #title>
         <div class="flex justify-between items-center">
-          <span class="text-lg font-bold">查询结果</span>
-          <span class="text-gray-500 text-sm">{{ data.updated_at }}</span>
+          <span class="text-base font-semibold text-gray-800">查询结果</span>
+          <span class="text-gray-400 text-xs">{{ data.updated_at }}</span>
         </div>
       </template>
-      <a-table
-        :columns="columns"
-        :data-source="tableData"
-        :pagination="false"
-        row-key="stock_code"
-        size="middle"
-      >
+      <DraggableContainer>
+        <a-table
+          :columns="columns"
+          :data-source="tableData"
+          :pagination="false"
+          :row-key="(_, index) => index"
+          size="middle"
+          class="result-table"
+        >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'macdv'">
             <div class="flex flex-col items-start gap-1">
@@ -37,13 +39,15 @@
             </a-tag>
           </template>
         </template>
-      </a-table>
+        </a-table>
+      </DraggableContainer>
     </a-card>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import DraggableContainer from './DraggableContainer.vue'
 
 const props = defineProps({
   data: {
@@ -72,16 +76,23 @@ function macdvColor(val) {
   return 'text-gray-700 font-bold'
 }
 
-function macdvTagColor(trend) {
-  if (trend === 'up') return 'red'
-  if (trend === 'down') return 'green'
-  return 'default'
+function macdvTrendText(trend) {
+  const map = {
+    momentum_peak: '动量峰值',
+    strong_up: '强劲上涨',
+    oscillation: '震荡',
+    strong_down: '强劲下跌',
+    momentum_decay: '动量衰竭',
+  }
+  return map[trend] || '震荡'
 }
 
-function macdvTrendText(trend) {
-  if (trend === 'up') return '上升'
-  if (trend === 'down') return '下降'
-  return '平稳'
+function macdvTagColor(trend) {
+  if (trend === 'momentum_peak') return 'red'
+  if (trend === 'strong_up') return 'orange'
+  if (trend === 'strong_down') return 'cyan'
+  if (trend === 'momentum_decay') return 'purple'
+  return 'default'
 }
 
 function rsiColor(val) {
@@ -116,5 +127,14 @@ function recommendationColor(rec) {
   min-width: 48px;
   text-align: center;
   display: inline-block;
+}
+.result-table :deep(.ant-table-thead > tr > th) {
+  background: #f9fafb;
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 13px;
+}
+.result-table :deep(.ant-table-tbody > tr > td) {
+  font-size: 14px;
 }
 </style>

@@ -87,7 +87,7 @@ class TestGetLatestIndicators:
         low = close - 1.0
         df = pd.DataFrame({"close": close, "high": high, "low": low})
         result = get_latest_indicators(df)
-        assert result["macdv_trend"] == "up"
+        assert result["macdv_trend"] == "strong_up"
 
     def test_macdv_trend_down(self):
         close = pd.Series([20.0 - i * 0.2 for i in range(30)])
@@ -95,4 +95,4 @@ class TestGetLatestIndicators:
         low = close - 1.0
         df = pd.DataFrame({"close": close, "high": high, "low": low})
         result = get_latest_indicators(df)
-        assert result["macdv_trend"] == "down"
+        assert result["macdv_trend"] == "strong_down"
