@@ -11,6 +11,7 @@ class StockQueryResponse(BaseModel):
     rsi14: float
     macdv_trend: str
     rsi14_signal: str
+    recommendation: Optional[str] = None
     updated_at: str
 
 
@@ -32,6 +33,7 @@ class BatchQueryItem(BaseModel):
     rsi14: float
     macdv_trend: str
     rsi14_signal: str
+    recommendation: Optional[str] = None
     error: Optional[str] = None
 
 

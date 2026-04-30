@@ -31,6 +31,11 @@
               </a-tag>
             </div>
           </template>
+          <template v-if="column.key === 'recommendation'">
+            <a-tag :color="recommendationColor(record.recommendation)">
+              {{ record.recommendation }}
+            </a-tag>
+          </template>
         </template>
       </a-table>
     </a-card>
@@ -54,6 +59,7 @@ const columns = [
   { title: '当前股价', dataIndex: 'current_price', key: 'current_price' },
   { title: 'MACD-V', key: 'macdv' },
   { title: 'RSI 14', key: 'rsi14' },
+  { title: '买卖建议', key: 'recommendation' },
 ]
 
 const tableData = computed(() => {
@@ -94,6 +100,14 @@ function rsiSignalText(signal) {
   if (signal === 'overbought') return '超买'
   if (signal === 'oversold') return '超卖'
   return '中性'
+}
+
+function recommendationColor(rec) {
+  if (rec === '左侧买点') return 'green'
+  if (rec === '右侧买点') return 'blue'
+  if (rec === '左侧卖点') return 'red'
+  if (rec === '右侧卖点') return 'orange'
+  return 'default'
 }
 </script>
 

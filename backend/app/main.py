@@ -88,16 +88,31 @@ async def query_stock(
     )
 
 
+def _get_recommendation(macdv: float, rsi14: float) -> str:
+    if -50 <= macdv <= 50:
+        return "观望"
+    if macdv > 150 and rsi14 > 70:
+        return "右侧卖点"
+    if macdv < -150 and rsi14 < 30:
+        return "左侧买点"
+    if 50 <= macdv <= 150 and rsi14 < 30:
+        return "右侧买点"
+    return "观望"
+
+
 def _build_batch_item(data, indicators) -> BatchQueryItem:
+    macdv = round(indicators["macdv"], 2)
+    rsi14 = round(indicators["rsi14"], 2)
     return BatchQueryItem(
         stock_name=data["stock_name"],
         stock_code=data["stock_code"],
         trade_date=data["trade_date"],
         current_price=data["current_price"],
-        macdv=round(indicators["macdv"], 2),
-        rsi14=round(indicators["rsi14"], 2),
+        macdv=macdv,
+        rsi14=rsi14,
         macdv_trend=indicators["macdv_trend"],
         rsi14_signal=indicators["rsi14_signal"],
+        recommendation=_get_recommendation(macdv, rsi14),
     )
 
 

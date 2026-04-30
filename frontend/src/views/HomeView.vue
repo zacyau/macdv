@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen py-8">
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-800">股票数据分析平台</h1>
+      <h1 class="text-3xl font-bold text-gray-800">估值与技术数据</h1>
       <p class="text-gray-500 mt-2">支持沪深A股及主要ETF批量查询</p>
     </div>
 
