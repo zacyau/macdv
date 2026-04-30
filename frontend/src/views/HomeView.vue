@@ -30,18 +30,26 @@
             </div>
             <div>
               <p class="font-semibold text-gray-800 mb-2">交易信号</p>
-              <ul class="list-disc pl-5 space-y-2 text-sm">
-                <li>
-                  <span class="text-gray-400 font-medium">观望</span>
-                  <span class="ml-1">MACD-V 在 ±50 内，无论 RSI 如何，直接观望</span>
+              <ul class="pl-1 space-y-2 text-sm">
+                <li class="flex items-start gap-1">
+                  <n-tag size="small" type="info" :bordered="false">右侧买点</n-tag>
+                  <span>MACD-V：+50 ~ +150（确认强势），RSI &lt; 30（超卖区）</span>
                 </li>
-                <li>
-                  <span class="text-green-500 font-medium">找机会买</span>
-                  <span class="ml-1">RSI &lt; 30 且 MACD-V 在 +50 上方或 -150 下方</span>
+                <li class="flex items-start gap-1">
+                  <n-tag size="small" type="success" :bordered="false">左侧买点</n-tag>
+                  <span>MACD-V：&lt; -150（恐慌性超卖），RSI &lt; 30（超卖区）</span>
                 </li>
-                <li>
-                  <span class="text-red-500 font-medium">找机会卖</span>
-                  <span class="ml-1">RSI &gt; 70 且 MACD-V 在 +150 上方或 +50 下方</span>
+                <li class="flex items-start gap-1">
+                  <n-tag size="small" type="error" :bordered="false">左侧卖点</n-tag>
+                  <span>MACD-V：&gt; +150（情绪过热），RSI &gt; 70（超买区）</span>
+                </li>
+                <li class="flex items-start gap-1">
+                  <n-tag size="small" type="warning" :bordered="false">右侧卖点</n-tag>
+                  <span>MACD-V：&lt; +50（趋势转弱），RSI &gt; 70（超买区）</span>
+                </li>
+                <li class="flex items-start gap-1">
+                  <n-tag size="small" :bordered="false">观望</n-tag>
+                  <span>MACD-V：-50 ~ +50（无趋势区），无论 RSI 如何都是噪音</span>
                 </li>
               </ul>
             </div>
