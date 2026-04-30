@@ -1,29 +1,44 @@
 <template>
-  <div>
-    <n-card class="shadow-sm" :bordered="false">
-      <template #header>
-        <div class="flex justify-between items-center">
-          <span class="text-base font-semibold text-gray-800">查询结果</span>
-          <span class="text-gray-400 text-xs">{{ data.updated_at }}</span>
-        </div>
-      </template>
-      <DraggableContainer>
-        <n-data-table
-          :columns="visibleColumns"
-          :data="tableData"
-          :pagination="false"
-          :row-key="(row) => row.stock_code"
-          size="medium"
-          class="result-table"
-        />
-      </DraggableContainer>
-    </n-card>
+  <div class="table-container">
+    <DraggableContainer>
+      <a-table
+        :columns="visibleColumns"
+        :data-source="data.results || []"
+        :pagination="false"
+        :row-key="(_, index) => index"
+        size="middle"
+        class="result-table"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'macdv'">
+            <div class="cell-stack">
+              <span :class="macdvColor(record.macdv)">{{ record.macdv }}</span>
+              <a-tag :color="macdvTagColor(record.macdv_trend)" class="status-tag">
+                {{ macdvTrendText(record.macdv_trend) }}
+              </a-tag>
+            </div>
+          </template>
+          <template v-if="column.key === 'rsi14'">
+            <div class="cell-stack">
+              <span :class="rsiColor(record.rsi14)">{{ record.rsi14 }}</span>
+              <a-tag :color="rsiTagColor(record.rsi14_signal)" class="status-tag">
+                {{ rsiSignalText(record.rsi14_signal) }}
+              </a-tag>
+            </div>
+          </template>
+          <template v-if="column.key === 'recommendation'">
+            <a-tag :color="recommendationColor(record.recommendation)">
+              {{ record.recommendation }}
+            </a-tag>
+          </template>
+        </template>
+      </a-table>
+    </DraggableContainer>
   </div>
 </template>
 
 <script setup>
-import { h, computed, ref, onMounted, onUnmounted } from 'vue'
-import { NCard, NDataTable, NTag } from 'naive-ui'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import DraggableContainer from './DraggableContainer.vue'
 
 const props = defineProps({
@@ -42,10 +57,27 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
 
 const isMobile = computed(() => windowWidth.value < 640)
 
+const allColumns = [
+  { title: '股票名称', dataIndex: 'stock_name', key: 'stock_name', minWidth: 80 },
+  { title: '股票代码', dataIndex: 'stock_code', key: 'stock_code', minWidth: 80 },
+  { title: '日期', dataIndex: 'trade_date', key: 'trade_date', hideOnMobile: true },
+  { title: '当前股价', dataIndex: 'current_price', key: 'current_price', hideOnMobile: true },
+  { title: 'MACD-V', key: 'macdv' },
+  { title: 'RSI 14', key: 'rsi14' },
+  { title: '买卖建议', key: 'recommendation' },
+]
+
+const visibleColumns = computed(() => {
+  if (isMobile.value) {
+    return allColumns.filter(col => !col.hideOnMobile)
+  }
+  return allColumns
+})
+
 function macdvColor(val) {
-  if (val > 0) return 'text-red-500 font-bold'
-  if (val < 0) return 'text-green-500 font-bold'
-  return 'text-gray-700 font-bold'
+  if (val > 0) return 'text-red font-bold'
+  if (val < 0) return 'text-green font-bold'
+  return 'text-gray font-bold'
 }
 
 function macdvTrendText(trend) {
@@ -59,24 +91,24 @@ function macdvTrendText(trend) {
   return map[trend] || '震荡'
 }
 
-function macdvTagProps(trend) {
-  if (trend === 'momentum_peak') return { type: 'error', bordered: false }
-  if (trend === 'strong_up') return { type: 'warning', bordered: false }
-  if (trend === 'strong_down') return { color: { color: '#e6fffb', textColor: '#08979c', borderColor: '#87e8de' }, bordered: true }
-  if (trend === 'momentum_decay') return { color: { color: '#f9f0ff', textColor: '#722ed1', borderColor: '#d3adf7' }, bordered: true }
-  return { bordered: false }
+function macdvTagColor(trend) {
+  if (trend === 'momentum_peak') return 'red'
+  if (trend === 'strong_up') return 'orange'
+  if (trend === 'strong_down') return 'cyan'
+  if (trend === 'momentum_decay') return 'purple'
+  return 'default'
 }
 
 function rsiColor(val) {
-  if (val > 70) return 'text-red-500 font-bold'
-  if (val < 30) return 'text-green-500 font-bold'
-  return 'text-gray-700 font-bold'
+  if (val > 70) return 'text-red font-bold'
+  if (val < 30) return 'text-green font-bold'
+  return 'text-gray font-bold'
 }
 
-function rsiTagProps(signal) {
-  if (signal === 'overbought') return { type: 'error', bordered: false }
-  if (signal === 'oversold') return { type: 'success', bordered: false }
-  return { bordered: false }
+function rsiTagColor(signal) {
+  if (signal === 'overbought') return 'red'
+  if (signal === 'oversold') return 'green'
+  return 'default'
 }
 
 function rsiSignalText(signal) {
@@ -85,71 +117,52 @@ function rsiSignalText(signal) {
   return '中性'
 }
 
-function recommendationTagProps(rec) {
-  if (rec === '左侧买点') return { type: 'success', bordered: false }
-  if (rec === '右侧买点') return { type: 'info', bordered: false }
-  if (rec === '左侧卖点') return { type: 'error', bordered: false }
-  if (rec === '右侧卖点') return { type: 'warning', bordered: false }
-  return { bordered: false }
+function recommendationColor(rec) {
+  if (rec === '左侧买点') return 'green'
+  if (rec === '右侧买点') return 'blue'
+  if (rec === '左侧卖点') return 'red'
+  if (rec === '右侧卖点') return 'orange'
+  return 'default'
 }
-
-const allColumns = [
-  { title: '股票名称', key: 'stock_name', minWidth: 80 },
-  { title: '股票代码', key: 'stock_code', minWidth: 80 },
-  { title: '日期', key: 'trade_date', minWidth: 90, hideOnMobile: true },
-  { title: '当前股价', key: 'current_price', minWidth: 80, hideOnMobile: true },
-  {
-    title: 'MACD-V',
-    key: 'macdv',
-    minWidth: 120,
-    render(row) {
-      return h('div', { class: 'flex flex-col items-start gap-1' }, [
-        h('span', { class: macdvColor(row.macdv) }, row.macdv),
-        h(NTag, { size: 'small', ...macdvTagProps(row.macdv_trend) }, { default: () => macdvTrendText(row.macdv_trend) })
-      ])
-    }
-  },
-  {
-    title: 'RSI 14',
-    key: 'rsi14',
-    minWidth: 100,
-    render(row) {
-      return h('div', { class: 'flex flex-col items-start gap-1' }, [
-        h('span', { class: rsiColor(row.rsi14) }, row.rsi14),
-        h(NTag, { size: 'small', ...rsiTagProps(row.rsi14_signal) }, { default: () => rsiSignalText(row.rsi14_signal) })
-      ])
-    }
-  },
-  {
-    title: '买卖建议',
-    key: 'recommendation',
-    minWidth: 90,
-    render(row) {
-      return h(NTag, { size: 'small', ...recommendationTagProps(row.recommendation) }, { default: () => row.recommendation })
-    }
-  }
-]
-
-const visibleColumns = computed(() => {
-  if (isMobile.value) {
-    return allColumns.filter(col => !col.hideOnMobile)
-  }
-  return allColumns
-})
-
-const tableData = computed(() => {
-  return props.data.results || []
-})
 </script>
 
 <style scoped>
-.result-table :deep(.n-data-table-th) {
-  background: #f9fafb;
-  font-weight: 500;
-  color: #6b7280;
-  font-size: 13px;
+.table-container {
+  overflow-x: auto;
 }
-.result-table :deep(.n-data-table-td) {
-  font-size: 14px;
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.text-red { color: #ef4444; }
+.text-green { color: #10b981; }
+.text-gray { color: #374151; }
+.font-bold { font-weight: 700; }
+
+.status-tag {
+  min-width: 48px;
+  text-align: center;
+  display: inline-block;
+}
+
+.result-table :deep(.ant-table-thead > tr > th) {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.result-table :deep(.ant-table-tbody > tr > td) {
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.result-table :deep(.ant-table-tbody > tr:hover > td) {
+  background: #f9fafb;
 }
 </style>
