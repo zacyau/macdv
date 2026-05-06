@@ -6,28 +6,28 @@
         :data-source="data.results || []"
         :pagination="false"
         :row-key="(_, index) => index"
-        size="middle"
+        size="small"
         class="result-table"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'macdv'">
             <div class="cell-stack">
-              <span :class="macdvColor(record.macdv)">{{ record.macdv }}</span>
-              <a-tag :color="macdvTagColor(record.macdv_trend)" class="status-tag">
+              <span :class="macdvColor(record.macdv)" class="cell-value">{{ record.macdv }}</span>
+              <a-tag :color="macdvTagColor(record.macdv_trend)" class="cell-tag">
                 {{ macdvTrendText(record.macdv_trend) }}
               </a-tag>
             </div>
           </template>
           <template v-if="column.key === 'rsi14'">
             <div class="cell-stack">
-              <span :class="rsiColor(record.rsi14)">{{ record.rsi14 }}</span>
-              <a-tag :color="rsiTagColor(record.rsi14_signal)" class="status-tag">
+              <span :class="rsiColor(record.rsi14)" class="cell-value">{{ record.rsi14 }}</span>
+              <a-tag :color="rsiTagColor(record.rsi14_signal)" class="cell-tag">
                 {{ rsiSignalText(record.rsi14_signal) }}
               </a-tag>
             </div>
           </template>
           <template v-if="column.key === 'recommendation'">
-            <a-tag :color="recommendationColor(record.recommendation)">
+            <a-tag :color="recommendationColor(record.recommendation)" class="rec-tag">
               {{ record.recommendation }}
             </a-tag>
           </template>
@@ -41,7 +41,7 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import DraggableContainer from './DraggableContainer.vue'
 
-const props = defineProps({
+defineProps({
   data: {
     type: Object,
     required: true
@@ -75,9 +75,9 @@ const visibleColumns = computed(() => {
 })
 
 function macdvColor(val) {
-  if (val > 0) return 'text-red font-bold'
-  if (val < 0) return 'text-green font-bold'
-  return 'text-gray font-bold'
+  if (val > 0) return 'text-red'
+  if (val < 0) return 'text-green'
+  return 'text-gray'
 }
 
 function macdvTrendText(trend) {
@@ -100,9 +100,9 @@ function macdvTagColor(trend) {
 }
 
 function rsiColor(val) {
-  if (val > 70) return 'text-red font-bold'
-  if (val < 30) return 'text-green font-bold'
-  return 'text-gray font-bold'
+  if (val > 70) return 'text-red'
+  if (val < 30) return 'text-green'
+  return 'text-gray'
 }
 
 function rsiTagColor(signal) {
@@ -135,34 +135,48 @@ function recommendationColor(rec) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 3px;
 }
 
-.text-red { color: #ef4444; }
-.text-green { color: #10b981; }
-.text-gray { color: #374151; }
-.font-bold { font-weight: 700; }
+.cell-value {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
 
-.status-tag {
-  min-width: 48px;
+.cell-tag {
+  min-width: 52px;
   text-align: center;
-  display: inline-block;
+  font-size: 0.7rem;
+  line-height: 18px;
 }
 
+.rec-tag {
+  font-size: 0.75rem;
+}
+
+.text-red { color: #dc2626; }
+.text-green { color: #059669; }
+.text-gray { color: #374151; }
+
+.result-table :deep(.ant-table) {
+  font-size: 0.8rem;
+}
 .result-table :deep(.ant-table-thead > tr > th) {
-  background: #f9fafb;
+  background: #f8fafc;
   font-weight: 600;
-  color: #374151;
-  font-size: 0.85rem;
-  border-bottom: 2px solid #e5e7eb;
+  color: #334155;
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  border-bottom: 1.5px solid #e2e8f0;
+  white-space: nowrap;
 }
-
 .result-table :deep(.ant-table-tbody > tr > td) {
-  font-size: 0.9rem;
-  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.8rem;
+  padding: 7px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
 }
-
 .result-table :deep(.ant-table-tbody > tr:hover > td) {
-  background: #f9fafb;
+  background: #f8fafc;
 }
 </style>

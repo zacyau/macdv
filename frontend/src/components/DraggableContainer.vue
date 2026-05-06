@@ -174,16 +174,16 @@ function endDrag() {
 }
 
 function animateTo(targetX, targetY) {
-  const startX = translateX.value
-  const startY = translateY.value
+  const startXVal = translateX.value
+  const startYVal = translateY.value
   const start = performance.now()
   const duration = 350
 
   function step(now) {
     const t = Math.min((now - start) / duration, 1)
     const ease = 1 - Math.pow(1 - t, 3)
-    translateX.value = startX + (targetX - startX) * ease
-    translateY.value = startY + (targetY - startY) * ease
+    translateX.value = startXVal + (targetX - startXVal) * ease
+    translateY.value = startYVal + (targetY - startYVal) * ease
     if (t < 1) {
       rafId.value = requestAnimationFrame(step)
     }
@@ -239,9 +239,9 @@ onUnmounted(() => {
 
 .scroll-indicator-h .scroll-indicator-line {
   width: 36px;
-  height: 4px;
+  height: 3px;
   border-radius: 2px;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(26, 51, 94, 0.18);
 }
 
 .scroll-indicator-v {
@@ -251,9 +251,9 @@ onUnmounted(() => {
 }
 
 .scroll-indicator-v .scroll-indicator-line {
-  width: 4px;
+  width: 3px;
   height: 36px;
   border-radius: 2px;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(26, 51, 94, 0.18);
 }
 </style>
